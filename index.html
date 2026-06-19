@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPH Summer Class Routine & Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --text-main: #ffffff;
+            --text-muted: #b0bec5;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-color: #00d2ff;
+            --accent-bg: rgba(0, 210, 255, 0.15);
+            --table-hover: rgba(255, 255, 255, 0.05);
+            --danger-color: #ff4757;
+            --warning-color: #ffa502;
+        }
+
+        body.light-mode {
+            --bg-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            --text-main: #2c3e50;
+            --text-muted: #546e7a;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --accent-color: #0056b3;
+            --accent-bg: rgba(0, 86, 179, 0.1);
+            --table-hover: rgba(0, 0, 0, 0.03);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body { background: var(--bg-gradient); color: var(--text-main); min-height: 100vh; padding: 20px; transition: background 0.5s ease, color 0.5s ease; }
+
+        .container { max-width: 900px; margin: 0 auto; position: relative; }
+
+        /* Floating Buttons */
+        .theme-toggle-btn {
+            position: absolute; top: 20px; right: 20px; background: var(--glass-bg);
+            border: 1px solid var(--glass-border); color: var(--accent-color); padding: 10px;
+            border-radius: 50%; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; z-index: 100;
+        }
+        .theme-toggle-btn:hover { background: var(--accent-color); color: #fff; }
+        
+        .admin-toggle-btn {
+            position: absolute; top: 20px; left: 20px; background: var(--glass-bg);
+            border: 1px solid var(--glass-border); color: var(--warning-color); padding: 10px;
+            border-radius: 50%; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; z-index: 100;
+        }
+        .admin-toggle-btn:hover { background: var(--warning-color); color: #fff; }
+
+        /* Header */
+        .header {
+            background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 15px;
+            padding: 20px 20px 25px; text-align: center; border: 1px solid var(--glass-border);
+            margin-bottom: 15px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+        .header h1 { font-size: 26px; color: var(--accent-color); font-weight: 700; }
+        .header .sub-heading {
+            font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
+            margin: 8px 0 15px; background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; border-bottom: 1px solid rgba(0, 210, 255, 0.3); padding-bottom: 5px;
+        }
+        .header p { font-size: 14px; color: var(--text-muted); }
+
+        /* Notice Board */
+        .notice-board {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px;
+            padding: 10px; margin-bottom: 20px; display: flex; align-items: center;
+            backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .notice-badge {
+            background: var(--danger-color); color: white; padding: 4px 10px; border-radius: 4px;
+            font-size: 12px; font-weight: bold; margin-right: 15px; white-space: nowrap;
+        }
+        .notice-board marquee { font-size: 14px; color: var(--text-main); font-weight: 500; }
+
+        /* Tabs */
+        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); padding: 10px 20px;
+            border-radius: 30px; color: var(--text-main); cursor: pointer; font-weight: 500; transition: 0.3s;
+        }
+        .tab-btn.active, .tab-btn:hover { background: var(--accent-color); color: #fff; font-weight: 600; border-color: var(--accent-color); }
+        body.light-mode .tab-btn.active { color: #fff; }
+
+        /* Sections */
+        .section { display: none; animation: fadeIn 0.5s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Toolbar (Search & Export) */
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 200px; position: relative; }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-input {
+            width: 100%; padding: 10px 15px 10px 40px; border-radius: 30px; border: 1px solid var(--glass-border);
+            background: var(--glass-bg); color: var(--text-main); outline: none; backdrop-filter: blur(5px); font-size: 14px; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--accent-color); }
+        .btn-export { background: #10ac84; color: #fff; border: none; cursor: pointer; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: 500; transition: 0.3s; }
+        .btn-export:hover { background: #01a3a4; }
+
+        /* Cards & Lists */
+        .day-title { background: var(--accent-bg); padding: 10px 15px; border-radius: 8px; margin: 20px 0 15px 0; border-left: 4px solid var(--accent-color); font-weight: 600; color: var(--text-main); }
+        
+        .card {
+            background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 18px 15px; margin-bottom: 15px; display: flex; flex-wrap: wrap;
+            justify-content: space-between; align-items: center; transition: 0.3s;
+        }
+        .card:hover { background: var(--table-hover); transform: translateY(-2px); }
+        
+        /* Live Indicator Styles */
+        .card.live-now { border: 1px solid var(--danger-color); box-shadow: 0 0 15px rgba(255, 71, 87, 0.2); }
+        .live-badge {
+            background: var(--danger-color); color: white; padding: 2px 8px; border-radius: 4px;
+            font-size: 11px; font-weight: bold; animation: pulse 1.5s infinite; margin-left: 10px; display: inline-block; vertical-align: middle;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        /* Typography & Meta info */
+        .course-info { flex: 1; min-width: 250px; }
+        .time { font-size: 13px; color: var(--accent-color); font-weight: 500; margin-bottom: 5px; display: flex; align-items: center; }
+        .course-name { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+        .course-meta { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        
+        .teacher-name, .badge-type { background: var(--accent-bg); color: var(--accent-color); padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; border: 1px solid rgba(0, 210, 255, 0.1); font-weight: 600; font-size: 12px; }
+        .badge-deadline { background: rgba(255, 165, 2, 0.2); color: var(--warning-color); padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+
+        /* Action Buttons */
+        .action-links { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .btn { padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; transition: 0.3s; white-space: nowrap; border: none; cursor: pointer; color: white;}
+        .btn-zoom { background: #2D8CFF; } .btn-zoom:hover { background: #1a6acb; }
+        .btn-wa { background: #25D366; } .btn-wa:hover { background: #1da851; }
+        .btn-fb { background: #1877F2; } .btn-fb:hover { background: #145dbf; }
+        .btn-download { background: #10ac84; } .btn-download:hover { background: #01a3a4; }
+        .btn-api { background: #8e44ad; } .btn-api:hover { background: #732d91; }
+        .btn-disabled { background: rgba(136, 136, 136, 0.2); color: var(--text-muted); cursor: not-allowed; pointer-events: none; }
+
+        /* Tables */
+        .table-container { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 12px; overflow-x: auto; margin-bottom: 25px; }
+        .section-title { background: rgba(0, 0, 0, 0.1); padding: 12px 15px; font-weight: 600; color: var(--accent-color); text-align: center; border-bottom: 1px solid var(--glass-border); }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+        th { background: rgba(0, 0, 0, 0.1); font-size: 14px; color: var(--text-main); font-weight: 600; }
+        td { font-size: 13px; color: var(--text-main); }
+        tr:hover { background: var(--table-hover); }
+        .badge { background: var(--accent-bg); color: var(--accent-color); padding: 3px 8px; border-radius: 4px; font-size: 11px; margin-right: 5px; display: inline-block; margin-top: 5px; font-weight: 600; }
+
+        /* Admin Panel Styles */
+        .admin-panel { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; border: 1px dashed var(--warning-color); margin-bottom: 20px;}
+        .admin-input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .card { flex-direction: column; align-items: flex-start; }
+            .action-links { width: 100%; justify-content: flex-start; }
+            .btn { flex: 1; justify-content: center; }
+            th, td { padding: 10px; }
+            .theme-toggle-btn { top: 15px; right: 15px; }
+            .admin-toggle-btn { top: 15px; left: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme"><i class="fas fa-sun" id="themeIcon"></i></button>
+        <button class="admin-toggle-btn" onclick="switchTab(event, 'admin')" title="Admin Dashboard"><i class="fas fa-user-shield"></i></button>
+
+        <div class="header">
+            <h1>MPH Program Portal</h1>
+            <div class="sub-heading">Health Management & Development</div>
+            <p>Summer Class Routine & Combined Section Information</p>
+        </div>
+
+        <div class="notice-board">
+            <span class="notice-badge">Notice</span>
+            <marquee behavior="scroll" direction="left" id="noticeText">
+                Welcome to the updated MPH Portal! Classes are running as per the summer routine. Keep an eye on the tracker for upcoming assignments.
+            </marquee>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'routine')"><i class="fas fa-calendar-alt"></i> Routine</button>
+            <button class="tab-btn" onclick="switchTab(event, 'resources')"><i class="fas fa-folder-open"></i> Resources</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tracker')"><i class="fas fa-tasks"></i> Tracker</button>
+            <button class="tab-btn" onclick="switchTab(event, 'students')"><i class="fas fa-users"></i> Students</button>
+        </div>
+
+        <div id="routine" class="section active"></div>
+
+        <div id="resources" class="section">
+            <div class="day-title"><i class="fas fa-book-medical"></i> Study Materials & Vault</div>
+            <div id="resourceList"></div>
+        </div>
+
+        <div id="tracker" class="section">
+            <div class="day-title"><i class="fas fa-hourglass-half"></i> Upcoming Deadlines</div>
+            <div id="trackerList"></div>
+        </div>
+        
+        <div id="students" class="section">
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search by ID or Student Name..." onkeyup="filterStudents()">
+                </div>
+                <button class="btn btn-export" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> Export Data</button>
+            </div>
+            <div id="studentTables"></div>
+        </div>
+
+        <div id="admin" class="section">
+            <div class="admin-panel">
+                <h3 style="color: var(--warning-color); margin-bottom: 15px;"><i class="fas fa-database"></i> Admin Dashboard</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
+                    * <b>Database Sync:</b> Connect Firebase to make the notice board and resources dynamic. Replace static arrays with Firestore collections.
+                </p>
+                <input type="text" class="admin-input" placeholder="Enter Notice / Update Text...">
+                <button class="btn btn-zoom">Update Portal Database</button>
+                
+                <hr style="border-color: var(--glass-border); margin: 20px 0;">
+                
+                <h4 style="margin-bottom: 10px;">Automated Alerts (Webhook)</h4>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Trigger WhatsApp/Email API to notify the batch about the next live class or assignment deadline.</p>
+                <button class="btn btn-api" onclick="sendWebhookReminder()"><i class="fas fa-paper-plane"></i> Send WhatsApp Reminder</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================
+        // DATA STRUCTURES
+        // ==========================
+
+        // Original Routine Data
+        const routineData = [
+            {
+                day: "Friday",
+                classes: [
+                    { time: "9.00 - 10.30 am", name: "Leadership Development & Performance Appraisal", code: "6367", section: "Sec: A", faculty: "Dr. Fahmida", zoom: "https://us04web.zoom.us/j/78765523274?pwd=9IKewlT5hrv0qeggMjXJpbowb2NmDJ.1", group: "https://facebook.com/groups/3907351432903770/" },
+                    { time: "10.30 - 12.00 pm", name: "Health Management Information System (HMIS)", code: "6349", section: "Sec: D", faculty: "Dr. Nadia Nusreen", zoom: "https://us05web.zoom.us/j/85492225774?pwd=26s1f4uruVUjtEx4iclL4WoZ1Pk2oS.1", group: "#" },
+                    { time: "2.00 - 3.30 pm", name: "Crisis & Conflict Management", code: "6368", section: "Sec: A", faculty: "Sarder Tanzir Hossain", zoom: "https://us05web.zoom.us/j/89840225503?pwd=AZ9N1tUb55WwGgICTbSEAUxmeD6uJ8.1", group: "https://chat.whatsapp.com/HqnkOAJrDes4bfHNwI9PvD?s=cl&p=a&ilr=0" }
+                ]
+            },
+            {
+                day: "Saturday",
+                classes: [
+                    { time: "9.00 - 10.30 am", name: "Public Health Administration & Management", code: "5102", section: "Sec: C&G", faculty: "Shamiul Islam", zoom: "#", group: "#" },
+                    { time: "10.30 - 12.00 pm", name: "Epidemiology of Communicable Diseases", code: "6322", section: "C", faculty: "Dr. Nadia Nusreen", zoom: "#", group: "#" }
+                ]
+            }
+        ];
+
+        // Original Complete Student Data
+        const studentData = [
+            {
+                section: "Section A Major (Crisis & Conflict Mgt. + Leadership Dev.)", 
+                subjects: ["MPH 6368", "MPH 6367"],
+                students: [
+                    { id: "MPH260173280", name: "Md. Suhag Mia" }, { id: "MPH260173286", name: "Amena" }, { id: "MPH260173287", name: "Sandhya Rani Debnath" }, { id: "MPH260173296", name: "Habiba Jannat Deba" }, { id: "MPH260173345", name: "Md Khairul Wara" }, { id: "MPH260173346", name: "Nizam Uddin" }, { id: "MPH260173347", name: "Md. Ashraful Makhlukat" }, { id: "MPH260173348", name: "Md. Sakib Al Hasan" }, { id: "MPH260173349", name: "Enam Ullah Sikder" }, { id: "MPH260173350", name: "Md. Rokibul Hasan Sumon (Kabbo)" }, { id: "MPH260173351", name: "Mst. Halimatus Sadia" }, { id: "MPH260173352", name: "Fatima Khatun" }, { id: "MPH260173353", name: "Raton Chandra Roy" }, { id: "MPH260173355", name: "Mohammad Ala Uddin" }, { id: "MPH260173376", name: "Mst. Bilkis Banu" }, { id: "MPH260173378", name: "Md Abul Hatem" }
+                ]
+            },
+            {
+                section: "Section C (Epidemiology of Communicable Diseases)",
+                subjects: ["MPH 6322"],
+                students: [
+                    { id: "MPH260173313", name: "Md Saiful Islam" }, { id: "MPH260173314", name: "Yeasmin Akther" }, { id: "MPH260173315", name: "Most. Mahabuba Akter" }, { id: "MPH260173316", name: "Mariya Jahan Ane" }, { id: "MPH260173317", name: "Taslima Begum" }, { id: "MPH260173318", name: "Nadia Akter" }, { id: "MPH260173319", name: "Nusrat Jahan" }, { id: "MPH260173320", name: "Ruma akter" }, { id: "MPH260173324", name: "Sheikh Md. Afzal Hossain" }, { id: "MPH260173325", name: "Md. Mojammel Hoque Khondoker" }, { id: "MPH260173327", name: "Sanzina Afrose" }, { id: "MPH260173328", name: "Shilpi Das" }, { id: "MPH260173329", name: "Jesmin Nahar" }, { id: "MPH260173330", name: "Minara Khatun" }, { id: "MPH260173331", name: "Amily" }, { id: "MPH260173332", name: "Rumana Pervin" }, { id: "MPH260173333", name: "Rabeya Akter" }, { id: "MPH260173334", name: "Khaleda Begum" }, { id: "MPH260173335", name: "Firoza Begum" }, { id: "MPH260173336", name: "Banya Rani Roy" }, { id: "MPH260173337", name: "Arifa Khatun" }, { id: "MPH260173338", name: "Purnima Rani Roy" }, { id: "MPH260173339", name: "Mst. Salma Khatun" }, { id: "MPH260173340", name: "Rina Munshi" }, { id: "MPH260173341", name: "Most. Nazma Akther" }, { id: "MPH260173342", name: "Most. Mehbuba Shirin" }, { id: "MPH260173343", name: "Afsana Afrin Mim" }, { id: "MPH260173344", name: "Runa Layla" }, { id: "MPH260173345", name: "Md Khairul Wara" }, { id: "MPH260173346", name: "Nizam Uddin" }, { id: "MPH260173347", name: "Md. Ashraful Makhlukat" }, { id: "MPH260173348", name: "Md. Sakib Al Hasan" }, { id: "MPH260173349", name: "Enam Ullah Sikder" }, { id: "MPH260173350", name: "Md. Rokibul Hasan Sumon (Kabbo)" }, { id: "MPH260173351", name: "Mst. Halimatus Sadia" }, { id: "MPH260173352", name: "Fatima Khatun" }, { id: "MPH260173353", name: "Raton Chandra Roy" }, { id: "MPH260173355", name: "Mohammad Ala Uddin" }, { id: "MPH260173357", name: "Sumona Khatun" }, { id: "MPH260173358", name: "Fatema Khatun" }, { id: "MPH260173359", name: "Shankari Roy" }, { id: "MPH260173360", name: "Md. Imran Hossain" }, { id: "MPH260173361", name: "Sharmin Mitu" }, { id: "MPH260173362", name: "Mst. Shamsunnahar" }, { id: "MPH260173364", name: "Sabina Yeasmin Mukti" }, { id: "MPH260173365", name: "Selina Akter" }, { id: "MPH260173366", name: "Sathi Sultana" }, { id: "MPH260173372", name: "Soniya Akter" }, { id: "MPH260173374", name: "khaleda Akter" }, { id: "MPH260173375", name: "Soma parvin" }, { id: "MPH260173376", name: "Mst. Bilkis Banu" }, { id: "MPH260173378", name: "Md Abul Hatem" }, { id: "MPH260173383", name: "Momotaz" }
+                ]
+            },
+            {
+                section: "Section D Major (Health Management)",
+                subjects: ["MPH 6349"],
+                students: [
+                    { id: "MPH250373210", name: "Eti Halder" }, { id: "MPH250373211", name: "Shilpi Akter" }, { id: "MPH250373212", name: "Shageda Akhter" }, { id: "MPH250373213", name: "Most Afroza Khatun" }, { id: "MPH250373214", name: "Laiju akter" }, { id: "MPH250373215", name: "BITHI RANI DHALI" }, { id: "MPH250373217", name: "Tama Gain" }, { id: "MPH250373218", name: "Dipti Rani Mahanta" }, { id: "MPH250373220", name: "Rehana Parvin" }, { id: "MPH250373221", name: "Dipu Rani Mistry" }, { id: "MPH250373222", name: "Imran badsha" }, { id: "MPH250373223", name: "Mrt.Runa Aktar" }, { id: "MPH250373224", name: "Muhammad Sadek Hossen" }, { id: "MPH250373225", name: "JAKEYA SULTANA" }, { id: "MPH250373226", name: "MUHAMMAD ABUL HASHEM" }, { id: "MPH250373227", name: "TAMANNA AKTER" }, { id: "MPH250373228", name: "Taslima Akter" }, { id: "MPH250373239", name: "Israt Jahan Mukti" }, { id: "MPH250373243", name: "Mst. Rahima Khatun" }, { id: "MPH250373261", name: "Nurunnahar" }, { id: "MPH250373264", name: "Most. Fatema Khatun" }, { id: "MPH260173280", name: "Md. Suhag Mia" }, { id: "MPH260173286", name: "Amena" }, { id: "MPH260173287", name: "Sandhya Rani Debnath" }, { id: "MPH260173296", name: "Habiba Jannat Deba" }, { id: "MPH260173345", name: "Md Khairul Wara" }, { id: "MPH260173346", name: "Nizam Uddin" }, { id: "MPH260173347", name: "Md. Ashraful Makhlukat" }, { id: "MPH260173348", name: "Md. Sakib Al Hasan" }, { id: "MPH260173349", name: "Enam Ullah Sikder" }, { id: "MPH260173350", name: "Md. Rokibul Hasan Sumon (Kabbo)" }, { id: "MPH260173351", name: "Mst. Halimatus Sadia" }, { id: "MPH260173352", name: "Fatima Khatun" }, { id: "MPH260173353", name: "Raton Chandra Roy" }, { id: "MPH260173355", name: "Mohammad Ala Uddin" }, { id: "MPH260173376", name: "Mst. Bilkis Banu" }, { id: "MPH260173378", name: "Md Abul Hatem" }
+                ]
+            }
+        ];
+
+        // Resource Data (Feature 2)
+        const resourceData = [
+            { course: "MPH 6368", title: "Crisis Management - Chapter 1 & 2 Slides", type: "PDF", size: "2.4 MB", link: "#" },
+            { course: "MPH 6349", title: "HMIS System Architecture Reference Book", type: "Drive Link", size: "Ext", link: "#" },
+            { course: "MPH 6367", title: "Leadership Performance Appraisal Format", type: "DOCX", size: "150 KB", link: "#" }
+        ];
+
+        // Tracker Data (Feature 5)
+        const trackerData = [
+            { course: "MPH 6349", title: "HMIS Mid-Term Assignment Submission", type: "Assignment", date: "24 June 2026", status: "Pending" },
+            { course: "MPH 6368", title: "Conflict Management Presentation", type: "Presentation", date: "02 July 2026", status: "Upcoming" }
+        ];
+
+
+        // ==========================
+        // CORE FUNCTIONS
+        // ==========================
+
+        // Tab Switcher Logic
+        function switchTab(e, tabId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            // Only highlight the button if it's one of the main nav tabs
+            if(e && e.currentTarget && e.currentTarget.classList.contains('tab-btn')) {
+                e.currentTarget.classList.add('active');
+            }
+        }
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('light-mode');
+            document.getElementById('themeIcon').className = body.classList.contains('light-mode') ? 'fas fa-moon' : 'fas fa-sun';
+        }
+
+        // Live Class Checker Logic
+        function checkLive(dayName, timeStr) {
+            const now = new Date();
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            if (days[now.getDay()] !== dayName) return false;
+
+            try {
+                let [start, endPart] = timeStr.split(' - ');
+                let end = endPart.replace(/am|pm/gi, '').trim();
+                let isPM = endPart.toLowerCase().includes('pm');
+                
+                let startH = parseInt(start.split('.')[0]);
+                let startM = parseInt(start.split('.')[1] || 0);
+                let endH = parseInt(end.split('.')[0]);
+                let endM = parseInt(end.split('.')[1] || 0);
+
+                if (isPM && endH !== 12) endH += 12;
+                if (isPM && startH < 12 && endH >= 12 && !start.toLowerCase().includes('am')) {
+                    if (startH < 7) startH += 12; 
+                }
+
+                let currentH = now.getHours();
+                let currentM = now.getMinutes();
+                let currentTime = currentH + (currentM / 60);
+                let startTime = startH + (startM / 60);
+                let endTime = endH + (endM / 60);
+
+                return (currentTime >= startTime && currentTime <= endTime);
+            } catch(e) {
+                return false;
+            }
+        }
+
+
+        // ==========================
+        // RENDERING FUNCTIONS
+        // ==========================
+
+        // 1. Render Routine
+        function renderRoutine() {
+            const container = document.getElementById('routine');
+            let html = '';
+
+            routineData.forEach(dayInfo => {
+                html += `<div class="day-title"><i class="far fa-calendar-alt"></i> ${dayInfo.day}</div>`;
+                
+                dayInfo.classes.forEach(cls => {
+                    let isLiveClass = checkLive(dayInfo.day, cls.time);
+                    let cardClass = isLiveClass ? "card live-now" : "card";
+                    let liveBadge = isLiveClass ? `<span class="live-badge">LIVE NOW</span>` : '';
+
+                    let zoomBtnHtml = cls.zoom !== "#" 
+                        ? `<a href="${cls.zoom}" target="_blank" class="btn btn-zoom"><i class="fas fa-video"></i> Zoom Link</a>`
+                        : `<span class="btn btn-disabled"><i class="fas fa-video-slash"></i> No Link</span>`;
+
+                    let groupBtnHtml = '';
+                    if (cls.group.includes("facebook.com")) {
+                        groupBtnHtml = `<a href="${cls.group}" target="_blank" class="btn btn-fb"><i class="fab fa-facebook"></i> FB Group</a>`;
+                    } else if (cls.group.includes("whatsapp.com")) {
+                        groupBtnHtml = `<a href="${cls.group}" target="_blank" class="btn btn-wa"><i class="fab fa-whatsapp"></i> WA Group</a>`;
+                    } else {
+                        groupBtnHtml = `<span class="btn btn-disabled"><i class="fas fa-users-slash"></i> No Group</span>`;
+                    }
+
+                    html += `
+                    <div class="${cardClass}">
+                        <div class="course-info">
+                            <div class="time">
+                                <i class="far fa-clock" style="margin-right:5px;"></i> ${cls.time} ${liveBadge}
+                            </div>
+                            <div class="course-name">${cls.name}</div>
+                            <div class="course-meta">
+                                <span>Code: <strong>${cls.code}</strong></span> | 
+                                <span>Section: <strong>${cls.section}</strong></span><br>
+                                <div class="teacher-name"><i class="fas fa-chalkboard-teacher"></i> ${cls.faculty}</div>
+                            </div>
+                        </div>
+                        <div class="action-links">
+                            ${zoomBtnHtml}
+                            ${groupBtnHtml}
+                        </div>
+                    </div>`;
+                });
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 2. Render Resources
+        function renderResources() {
+            let html = '';
+            resourceData.forEach(res => {
+                let icon = res.type.includes("PDF") ? "fa-file-pdf" : "fa-folder-open";
+                html += `
+                <div class="card">
+                    <div>
+                        <div style="font-weight: 600; font-size: 15px; margin-bottom: 5px;">${res.title}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">
+                            <span class="badge-type">${res.course}</span> | <i class="fas ${icon}"></i> ${res.type} (${res.size})
+                        </div>
+                    </div>
+                    <button class="btn btn-download" onclick="alert('Downloading ${res.title}...')"><i class="fas fa-cloud-download-alt"></i> Access</button>
+                </div>`;
+            });
+            document.getElementById('resourceList').innerHTML = html;
+        }
+
+        // 3. Render Tracker
+        function renderTracker() {
+            let html = '';
+            trackerData.forEach(task => {
+                html += `
+                <div class="card">
+                    <div>
+                        <div style="font-weight: 600; font-size: 15px; margin-bottom: 5px;">${task.title}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">
+                            <span class="badge-type">${task.course}</span> | Type: ${task.type}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="badge-deadline"><i class="far fa-clock"></i> ${task.date}</span>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('trackerList').innerHTML = html;
+        }
+
+        // 4. Render Student List
+        function renderStudents() {
+            const container = document.getElementById('studentTables');
+            let html = '';
+
+            studentData.forEach(sec => {
+                html += `
+                <div class="table-container">
+                    <div class="section-title"><i class="fas fa-users"></i> ${sec.section}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="10%">No.</th>
+                                <th width="30%">Student ID</th>
+                                <th width="40%">Name</th>
+                                <th width="20%">Enrolled</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                
+                sec.students.forEach((student, index) => {
+                    html += `
+                        <tr class="student-row">
+                            <td>${index + 1}</td>
+                            <td><strong>${student.id}</strong></td>
+                            <td class="student-name">${student.name}</td>
+                            <td>
+                                ${sec.subjects.map(sub => `<span class="badge">${sub}</span>`).join('')}
+                            </td>
+                        </tr>`;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+
+        // ==========================
+        // UTILITIES & INTEGRATIONS
+        // ==========================
+
+        // Search Filter
+        function filterStudents() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let tables = document.querySelectorAll('.table-container');
+            
+            tables.forEach(tableBox => {
+                let rows = tableBox.querySelectorAll('tbody tr');
+                let hasVisibleRow = false;
+                
+                rows.forEach(row => {
+                    let text = row.innerText.toLowerCase();
+                    if (text.includes(input)) {
+                        row.style.display = '';
+                        hasVisibleRow = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                tableBox.style.display = hasVisibleRow ? 'block' : 'none';
+            });
+        }
+
+        // CSV Export
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Section,Student ID,Student Name,Enrolled Subjects\n";
+            
+            studentData.forEach(sec => {
+                let sectionName = sec.section.replace(/,/g, ''); 
+                let subjects = sec.subjects.join(' & ');
+                
+                sec.students.forEach(student => {
+                    csvContent += `"${sectionName}",${student.id},"${student.name}","${subjects}"\n`;
+                });
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "MPH_Student_List.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Webhook Dummy Trigger
+        function sendWebhookReminder() {
+            alert("Webhook Triggered!\nIn a live environment, this will send an automated WhatsApp/Email message to the batch group with the class details.");
+        }
+
+
+        // ==========================
+        // INITIALIZATION
+        // ==========================
+        renderRoutine();
+        renderResources();
+        renderTracker();
+        renderStudents();
+        
+        // Auto Update Live Indicator every 1 minute
+        setInterval(renderRoutine, 60000);
+
+        /* Note: Add Firebase Initialization Code here in production */
+    </script>
+</body>
+</html>
