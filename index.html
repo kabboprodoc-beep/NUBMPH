@@ -7,24 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAlkIXIx4KXthlCnp-prjsfy8KPwghw1QY",
-    authDomain: "nubmph-39e40.firebaseapp.com",
-    projectId: "nubmph-39e40",
-    storageBucket: "nubmph-39e40.firebasestorage.app",
-    messagingSenderId: "647153398829",
-    appId: "1:647153398829:web:0cb7c2833e2e68974134a4",
-    measurementId: "G-DPJ8ZJK69V"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-</script>
-
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
     <style>
         /* এটি ডিফল্ট ডার্ক মোড */
 :root {
@@ -290,13 +274,15 @@ body.light-mode {
             <p>Summer Class Routine & Combined Section Information</p>
         </div>
 
-<div class="notice-board">
-    <span class="notice-badge">Notice</span>
-    
-    <marquee behavior="scroll" direction="left" id="noticeText">
-        Loading...
-    </marquee>
-</div>
+        <div class="notice-board">
+            <span class="notice-badge">Notice</span>
+            <marquee behavior="scroll" direction="left" id="noticeText">
+                Dear Students,
+This is to inform you that our Coordinator and Head of the Department (In-Charge) of Public Health, Dr. Md. Rifat Uddin, will be out of the country from 21–30 June 2026.
+During this period, for any academic communication, you are requested to contact Dr. Tanjamul Refat if necessary. Mobile Number: 01622789563
+Thanks
+            </marquee>
+        </div>
 
         <div class="tabs">
     <button class="tab-btn active" onclick="switchTab(event, 'routine')"><i class="fas fa-calendar-alt"></i> Routine</button>
@@ -674,10 +660,10 @@ function toggleTheme() {
 }
 
 // পেজ লোড হওয়ার সময় আগের থিম চেক করা
-window.onload = () => {
-    // ১. থিম লজিক
+window.addEventListener('load', () => {
     const savedTheme = localStorage.getItem('theme');
     const icon = document.getElementById('themeIcon');
+    
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
         icon.className = 'fas fa-moon';
@@ -686,46 +672,36 @@ window.onload = () => {
         icon.className = 'fas fa-sun';
     }
     
-    // ২. রেন্ডারিং ও ফায়ারবেস কল
     renderRoutine();
     renderResources();
     renderTracker();
     renderStudents();
-    fetchDynamicNotice(); // নিশ্চিত করুন এটি এখানে আছে
-};
+});
 
         // Live Class Checker Logic
         function checkLive(dayName, timeStr) {
-            const now = new Date();
-            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            if (days[now.getDay()] !== dayName) return false;
+    const now = new Date();
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    if (days[now.getDay()] !== dayName) return false;
 
-            try {
-                let [start, endPart] = timeStr.split(' - ');
-                let end = endPart.replace(/am|pm/gi, '').trim();
-                let isPM = endPart.toLowerCase().includes('pm');
-                
-                let startH = parseInt(start.split('.')[0]);
-                let startM = parseInt(start.split('.')[1] || 0);
-                let endH = parseInt(end.split('.')[0]);
-                let endM = parseInt(end.split('.')[1] || 0);
+    try {
+        // timeStr: "9.00 - 10.30 am" ফরম্যাট থেকে সময় বের করা
+        const isPM = timeStr.toLowerCase().includes('pm');
+        const [start, endPart] = timeStr.split(' - ');
+        const end = endPart.replace(/am|pm/gi, '').trim();
 
-                if (isPM && endH !== 12) endH += 12;
-                if (isPM && startH < 12 && endH >= 12 && !start.toLowerCase().includes('am')) {
-                    if (startH < 7) startH += 12; 
-                }
+        const startH = parseInt(start.split('.')[0]) + (isPM && start.split('.')[0] !== '12' ? 12 : 0);
+        const startM = parseInt(start.split('.')[1]);
+        const endH = parseInt(end.split('.')[0]) + (isPM ? 12 : 0);
+        const endM = parseInt(end.split('.')[1]);
 
-                let currentH = now.getHours();
-                let currentM = now.getMinutes();
-                let currentTime = currentH + (currentM / 60);
-                let startTime = startH + (startM / 60);
-                let endTime = endH + (endM / 60);
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+        const startTime = startH * 60 + startM;
+        const endTime = endH * 60 + endM;
 
-                return (currentTime >= startTime && currentTime <= endTime);
-            } catch(e) {
-                return false;
-            }
-        }
+        return (currentTime >= startTime && currentTime <= endTime);
+    } catch(e) { return false; }
+}
 
 
         // ==========================
@@ -926,53 +902,30 @@ window.onload = () => {
 
         /* Note: Add Firebase Initialization Code here in production */
 		
-		function filterResources() {
-    // সার্চ ইনপুট ভ্যালু
+	function filterResources() {
     let input = document.getElementById('resourceSearch').value.toLowerCase();
-    
-    // সব ফাইল আইটেম সিলেক্ট করুন
     let fileItems = document.querySelectorAll('.file-item');
     
+    if (input === "") {
+        renderResources(); // রিসেট করার জন্য ফাংশনটি আবার কল করা
+        return;
+    }
+
     fileItems.forEach(item => {
-        let text = item.innerText.toLowerCase();
+        let match = item.innerText.toLowerCase().includes(input);
+        item.style.display = match ? 'flex' : 'none';
         
-        if (text.includes(input)) {
-            item.style.display = 'flex'; // ম্যাচ করলে দেখাবে
-            
-            // যদি ইনপুট থাকে এবং ম্যাচ করে, তবে তার parent ফোল্ডারটি ওপেন করে দিন
+        if (match) {
             let parentList = item.closest('.file-list');
             if (parentList) {
-                parentList.classList.add('active'); // ফোল্ডার ওপেন হবে
-                
-                // আইকন পরিবর্তন (ফোল্ডার ওপেন)
+                parentList.classList.add('active');
                 let iconId = parentList.id.replace('folder-', 'icon-');
                 let icon = document.getElementById(iconId);
                 if (icon) icon.className = "fas fa-folder-open";
             }
-        } else {
-            item.style.display = 'none'; // ম্যাচ না করলে লুকিয়ে ফেলবে
-        }
-    });
-
-    // যদি সার্চ বক্স খালি থাকে, তাহলে সব ফোল্ডার আগের অবস্থায় ফিরিয়ে নেওয়া (অপশনাল)
-    if (input === "") {
-        document.querySelectorAll('.file-list').forEach(list => list.classList.remove('active'));
-        document.querySelectorAll('.folder-icon i').forEach(icon => icon.className = "fas fa-folder");
-    }
-}
-
-// আপনার বর্তমান fetchDynamicNotice ফাংশনটি সরিয়ে এটি ব্যবহার করে দেখুন
-function fetchDynamicNotice() {
-    db.collection("notices").doc("current_notice").onSnapshot(function(doc) {
-        var noticeElement = document.getElementById("noticeText");
-        if (doc.exists) {
-            noticeElement.innerHTML = doc.data().text;
-        } else {
-            noticeElement.innerHTML = "No notice found.";
         }
     });
 }
-
     </script>
 </body>
 </html>
