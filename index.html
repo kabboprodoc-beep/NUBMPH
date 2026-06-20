@@ -962,22 +962,6 @@ window.onload = () => {
     }
 }
 
-function updateNotice() {
-    const newNotice = document.querySelector('.admin-input').value;
-    
-    if(newNotice) {
-        db.collection("notices").doc("current_notice").set({
-            text: newNotice
-        })
-        .then(() => {
-            alert("Notice updated successfully!");
-        })
-        .catch((error) => {
-            console.error("Error updating notice: ", error);
-        });
-    }
-}
-
 // Firestore থেকে ডাটা আনার জন্য এই ফাংশনটি ব্যবহার করুন
 function fetchDynamicNotice() {
     const noticeElement = document.getElementById('noticeText');
