@@ -197,6 +197,44 @@ body.light-mode {
     display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--glass-border);
 }
 
+/* টিচারের নাম এবং নম্বরের নতুন স্টাইল */
+.teacher-info-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+/* টিচারের নামের জন্য লাল ডিজাইন */
+.teacher-name-badge {
+    background: #ff4757; /* গাঢ় লাল ব্যাকগ্রাউন্ড */
+    color: #ffffff;      /* সাদা টেক্সট */
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #ff6b81;
+}
+
+/* ফোন নম্বরের জন্য নীল ডিজাইন (যেমনটি আগে ছিল) */
+.phone-badge {
+    background: #0056b3; /* আপনার পছন্দের গাঢ় নীল */
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.3s;
+}
+.phone-badge:hover {
+    background: #004494;
+}
 
     </style>
 </head>
@@ -277,23 +315,68 @@ Thanks
         // ==========================
 
         // Original Routine Data
-        const routineData = [
-            {
-                day: "Friday",
-                classes: [
-                    { time: "9.00 - 10.30 am", name: "Leadership Development & Performance Appraisal", code: "6367", section: "Sec: A", faculty: "Dr. Fahmida", zoom: "https://us04web.zoom.us/j/78765523274?pwd=9IKewlT5hrv0qeggMjXJpbowb2NmDJ.1", group: "https://facebook.com/groups/3907351432903770/" },
-                    { time: "10.30 - 12.00 pm", name: "Health Management Information System (HMIS)", code: "6349", section: "Sec: D", faculty: "Dr. Nadia Nusreen", zoom: "https://us05web.zoom.us/j/85492225774?pwd=26s1f4uruVUjtEx4iclL4WoZ1Pk2oS.1", group: "https://facebook.com/groups/1545296000647003/?mibextid=rS40aB7S9Ucbxw6v" },
-                    { time: "2.00 - 3.30 pm", name: "Crisis & Conflict Management", code: "6368", section: "Sec: A", faculty: "Sarder Tanzir Hossain", zoom: "https://us05web.zoom.us/j/89840225503?pwd=AZ9N1tUb55WwGgICTbSEAUxmeD6uJ8.1", group: "https://chat.whatsapp.com/HqnkOAJrDes4bfHNwI9PvD?s=cl&p=a&ilr=0" }
-                ]
+       const routineData = [
+    {
+        day: "Friday",
+        classes: [
+            { 
+                time: "9.00 - 10.30 am", 
+                name: "Leadership Development & Performance Appraisal", 
+                code: "6367", 
+                section: "Sec: A", 
+                faculty: "Dr. Fahmida", 
+                phone: "01627-809821", 
+                zoom: "https://us04web.zoom.us/j/78765523274?pwd=9IKewlT5hrv0qeggMjXJpbowb2NmDJ.1", 
+                group: "https://facebook.com/groups/3907351432903770/" 
             },
-            {
-                day: "Saturday",
-                classes: [
-                    { time: "9.00 - 10.30 am", name: "Public Health Administration & Management", code: "5102", section: "Sec: C&G", faculty: "Shamiul Islam", zoom: "https://us04web.zoom.us/j/77068322730?pwd=wPSAD94ymSa6fDgedB8y5fgpnCQgxU.1", group: "https://www.facebook.com/share/g/1GH41yDvyk/" },
-                    { time: "10.30 - 12.00 pm", name: "Epidemiology of Communicable Diseases", code: "6322", section: "C", faculty: "Dr. Nadia Nusreen", zoom: "https://us05web.zoom.us/j/83324124191?pwd=F2gCOgyaiUQE0ORetJBt8oVGvxSr2U.1", group: "https://www.facebook.com/share/g/1GVJkm4zim/" }
-                ]
+            { 
+                time: "10.30 - 12.00 pm", 
+                name: "Health Management Information System (HMIS)", 
+                code: "6349", 
+                section: "Sec: D", 
+                faculty: "Dr. Nadia Nusreen", 
+                phone: "01687-414742", 
+                zoom: "https://us05web.zoom.us/j/85492225774?pwd=26s1f4uruVUjtEx4iclL4WoZ1Pk2oS.1", 
+                group: "https://facebook.com/groups/1545296000647003/?mibextid=rS40aB7S9Ucbxw6v" 
+            },
+            { 
+                time: "2.00 - 3.30 pm", 
+                name: "Crisis & Conflict Management", 
+                code: "6368", 
+                section: "Sec: A", 
+                faculty: "Sarder Tanzir Hossain", 
+                phone: "01787-654364", 
+                zoom: "https://us05web.zoom.us/j/89840225503?pwd=AZ9N1tUb55WwGgICTbSEAUxmeD6uJ8.1", 
+                group: "https://chat.whatsapp.com/HqnkOAJrDes4bfHNwI9PvD?s=cl&p=a&ilr=0" 
             }
-        ];
+        ]
+    },
+    {
+        day: "Saturday",
+        classes: [
+            { 
+                time: "9.00 - 10.30 am", 
+                name: "Public Health Administration & Management", 
+                code: "5102", 
+                section: "Sec: C&G", 
+                faculty: "Shamiul Islam", 
+                phone: "01711-439451", 
+                zoom: "https://us04web.zoom.us/j/77068322730?pwd=wPSAD94ymSa6fDgedB8y5fgpnCQgxU.1", 
+                group: "https://www.facebook.com/share/g/1GH41yDvyk/" 
+            },
+            { 
+                time: "10.30 - 12.00 pm", 
+                name: "Epidemiology of Communicable Diseases", 
+                code: "6322", 
+                section: "C", 
+                faculty: "Dr. Nadia Nusreen", 
+                phone: "01687-414742", 
+                zoom: "https://us05web.zoom.us/j/83324124191?pwd=F2gCOgyaiUQE0ORetJBt8oVGvxSr2U.1", 
+                group: "https://www.facebook.com/share/g/1GVJkm4zim/" 
+            }
+        ]
+    }
+];
 
         // Original Complete Student Data
         const studentData = [
@@ -523,54 +606,62 @@ window.onload = () => {
         // ==========================
 
         // 1. Render Routine
-        function renderRoutine() {
-            const container = document.getElementById('routine');
-            let html = '';
+      function renderRoutine() {
+    const container = document.getElementById('routine');
+    let html = '';
 
-            routineData.forEach(dayInfo => {
-                html += `<div class="day-title"><i class="far fa-calendar-alt"></i> ${dayInfo.day}</div>`;
-                
-                dayInfo.classes.forEach(cls => {
-                    let isLiveClass = checkLive(dayInfo.day, cls.time);
-                    let cardClass = isLiveClass ? "card live-now" : "card";
-                    let liveBadge = isLiveClass ? `<span class="live-badge">LIVE NOW</span>` : '';
+    routineData.forEach(dayInfo => {
+        html += `<div class="day-title"><i class="far fa-calendar-alt"></i> ${dayInfo.day}</div>`;
+        
+        dayInfo.classes.forEach(cls => {
+            let isLiveClass = checkLive(dayInfo.day, cls.time);
+            let cardClass = isLiveClass ? "card live-now" : "card";
+            let liveBadge = isLiveClass ? `<span class="live-badge">LIVE NOW</span>` : '';
 
-                    let zoomBtnHtml = cls.zoom !== "#" 
-                        ? `<a href="${cls.zoom}" target="_blank" class="btn btn-zoom"><i class="fas fa-video"></i> Zoom Link</a>`
-                        : `<span class="btn btn-disabled"><i class="fas fa-video-slash"></i> No Link</span>`;
+            let zoomBtnHtml = cls.zoom !== "#" 
+                ? `<a href="${cls.zoom}" target="_blank" class="btn btn-zoom"><i class="fas fa-video"></i> Zoom Link</a>`
+                : `<span class="btn btn-disabled"><i class="fas fa-video-slash"></i> No Link</span>`;
 
-                    let groupBtnHtml = '';
-                    if (cls.group.includes("facebook.com")) {
-                        groupBtnHtml = `<a href="${cls.group}" target="_blank" class="btn btn-fb"><i class="fab fa-facebook"></i> FB Group</a>`;
-                    } else if (cls.group.includes("whatsapp.com")) {
-                        groupBtnHtml = `<a href="${cls.group}" target="_blank" class="btn btn-wa"><i class="fab fa-whatsapp"></i> WA Group</a>`;
-                    } else {
-                        groupBtnHtml = `<span class="btn btn-disabled"><i class="fas fa-users-slash"></i> No Group</span>`;
-                    }
+            let groupBtnHtml = '';
+            if (cls.group.includes("facebook.com")) {
+                groupBtnHtml = `<a href="${cls.group}" target="_blank" class="btn btn-fb"><i class="fab fa-facebook"></i> FB Group</a>`;
+            } else if (cls.group.includes("whatsapp.com")) {
+                groupBtnHtml = `<a href="${cls.group}" target="_blank" class="btn btn-wa"><i class="fab fa-whatsapp"></i> WA Group</a>`;
+            } else {
+                groupBtnHtml = `<span class="btn btn-disabled"><i class="fas fa-users-slash"></i> No Group</span>`;
+            }
 
-                    html += `
-                    <div class="${cardClass}">
-                        <div class="course-info">
-                            <div class="time">
-                                <i class="far fa-clock" style="margin-right:5px;"></i> ${cls.time} ${liveBadge}
+            html += `
+            <div class="${cardClass}">
+                <div class="course-info">
+                    <div class="time">
+                        <i class="far fa-clock" style="margin-right:5px;"></i> ${cls.time} ${liveBadge}
+                    </div>
+                    <div class="course-name">${cls.name}</div>
+                    <div class="course-meta">
+                        <span>Code: <strong>${cls.code}</strong></span> | 
+                        <span>Section: <strong>${cls.section}</strong></span>
+                        
+                        <div class="teacher-info-box">
+                            <div class="teacher-name-badge">
+                                <i class="fas fa-chalkboard-teacher"></i> ${cls.faculty}
                             </div>
-                            <div class="course-name">${cls.name}</div>
-                            <div class="course-meta">
-                                <span>Code: <strong>${cls.code}</strong></span> | 
-                                <span>Section: <strong>${cls.section}</strong></span><br>
-                                <div class="teacher-name"><i class="fas fa-chalkboard-teacher"></i> ${cls.faculty}</div>
-                            </div>
+                            <a href="tel:${cls.phone}" class="phone-badge">
+                                <i class="fas fa-phone-alt"></i> ${cls.phone}
+                            </a>
                         </div>
-                        <div class="action-links">
-                            ${zoomBtnHtml}
-                            ${groupBtnHtml}
-                        </div>
-                    </div>`;
-                });
-            });
+                    </div>
+                </div>
+                <div class="action-links">
+                    ${zoomBtnHtml}
+                    ${groupBtnHtml}
+                </div>
+            </div>`;
+        });
+    });
 
-            container.innerHTML = html;
-        }
+    container.innerHTML = html;
+}
 
         // 3. Render Tracker
         function renderTracker() {
