@@ -978,23 +978,34 @@ function updateNotice() {
     }
 }
 
-// রিয়েল-টাইমে নোটিশ আপডেট করার ফাংশন
+// Firestore থেকে ডাটা আনার জন্য এই ফাংশনটি ব্যবহার করুন
 function fetchDynamicNotice() {
     const noticeElement = document.getElementById('noticeText');
     
-    // Firestore-এর 'notices' কালেকশন থেকে 'current_notice' ডকুমেন্টটি রিড করুন
+    // ডাটাবেস চেক করা
     db.collection("notices").doc("current_notice")
     .onSnapshot((doc) => {
-        if (doc.exists) {
+        if (doc && doc.exists) {
             noticeElement.innerText = doc.data().text;
+            console.log("Notice Loaded:", doc.data().text); // কনসোলে চেক করার জন্য
         } else {
-            console.log("No such document!");
+            noticeElement.innerText = "No notice available.";
         }
+    }, (error) => {
+        console.error("Firestore Error: ", error); // কোনো এরর হলে এখানে দেখাবে
     });
 }
 
-// পেজ লোড হওয়ার সাথে সাথে এটি চালু করুন
-fetchDynamicNotice();
+// পেজ লোড হওয়ার সাথে সাথে কল করা
+window.onload = () => {
+    // আগের থিম লজিক...
+    fetchDynamicNotice(); // এই লাইনটি আছে কি না দেখুন
+    
+    renderRoutine();
+    renderResources();
+    renderTracker();
+    renderStudents();
+};
 
     </script>
 </body>
