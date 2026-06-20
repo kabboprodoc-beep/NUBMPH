@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         /* এটি ডিফল্ট ডার্ক মোড */
@@ -259,11 +260,96 @@ body.light-mode {
 			margin-bottom: 10px;
 		}
 		
+		/* Toast Notification Styles */
+		#toastContainer {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			z-index: 9999;
+		}
+		.toast {
+			background: #ff4757;
+			color: white;
+			padding: 15px 20px;
+			border-radius: 8px;
+			margin-bottom: 10px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			animation: slideIn 0.5s ease;
+		}
+		@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }							
 
-    </style>
+		/* ID Card Styles - Refined & Professional */
+.card-wrapper { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+    align-items: center; 
+    padding: 20px; 
+}
+
+.id-card-front, .id-card-back {
+    width: 350px; 
+    height: 500px; 
+    background: white; 
+    border: 1px solid #eee;
+    position: relative; 
+    padding: 25px; 
+    color: #333; 
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
+    border-radius: 15px; /* কার্ডের কোনা একটু রাউন্ড করা হয়েছে */
+}
+
+/* স্মার্ট ছবি স্টাইল */
+.id-photo { 
+    width: 130px; 
+    height: 160px; 
+    object-fit: cover; 
+    border-radius: 10px; 
+    margin: 15px auto; 
+    display: block; 
+    border: none; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+}
+
+/* নীল লাইন রিমুভ করা হেডার */
+.card-header { 
+    text-align: center; 
+    margin-bottom: 20px; 
+}
+
+.card-title { 
+    color: #0056b3; 
+    font-weight: bold; 
+    font-size: 18px; 
+}
+
+.card-info { 
+    font-size: 13px; 
+    line-height: 2; /* লাইনগুলোর মাঝে দূরত্ব বাড়ানো হয়েছে */
+    margin-top: 15px;
+    padding: 0 10px;
+}
+
+/* সিগনেচার লাইন স্টাইল */
+.card-footer { 
+    position: absolute; 
+    bottom: 30px; 
+    left: 25px; 
+    right: 25px; 
+    text-align: center; 
+    border-top: 1px solid #999; 
+    padding-top: 5px;
+    font-size: 12px;
+    color: #555;
+}
+	</style>
 </head>
 <body>
-
+<div id="toastContainer"></div>
     <div class="container">
         <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme"><i class="fas fa-sun" id="themeIcon"></i></button>
         <button class="admin-toggle-btn" onclick="switchTab(event, 'admin')" title="Admin Dashboard"><i class="fas fa-user-shield"></i></button>
@@ -290,6 +376,7 @@ Thanks
     <button class="tab-btn" onclick="switchTab(event, 'tracker')"><i class="fas fa-tasks"></i> Tracker</button>
     <button class="tab-btn" onclick="switchTab(event, 'students')"><i class="fas fa-users"></i> Students</button>
     <button class="tab-btn" onclick="switchTab(event, 'contact')"><i class="fas fa-headset"></i> Contact</button>
+	<button class="tab-btn" onclick="switchTab(event, 'idCardGenerator')"><i class="fas fa-id-card"></i> ID Card</button>
 </div>
 
         <div id="routine" class="section active"></div>
@@ -386,6 +473,20 @@ Thanks
         </div>
     </div>
 </div>
+
+<div id="idCardGenerator" class="section">
+    <div class="day-title"><i class="fas fa-id-card"></i> Digital ID Card Generator</div>
+    <div class="card" style="display: flex; flex-direction: column; gap: 15px;">
+        <input type="text" id="idInput" class="admin-input" placeholder="Enter Your Student ID">
+        <label for="imgUpload" class="btn btn-api" style="cursor:pointer; text-align:center;">
+            <i class="fas fa-upload"></i> Upload Your Photo
+        </label>
+        <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="previewImage(this)">
+        <button class="btn btn-zoom" onclick="generateIDCard()">Generate Card</button>
+    </div>
+    <div id="cardResult" class="card-wrapper"></div>
+</div>
+
     <script>
         // ==========================
         // DATA STRUCTURES
@@ -926,6 +1027,125 @@ window.addEventListener('load', () => {
         }
     });
 }
+
+// নোটিফিকেশন দেখানোর ফাংশন
+function showNotification(courseName, link) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+        <i class="fas fa-bell"></i>
+        <div>
+            <strong>Class Started!</strong><br>
+            ${courseName}
+        </div>
+        <a href="${link}" target="_blank" style="color:white; margin-left:10px; text-decoration:underline;">Join Now</a>
+    `;
+    container.appendChild(toast);
+    
+    // ৫ সেকেন্ড পর নোটিফিকেশনটি অটো রিমুভ হবে
+    setTimeout(() => toast.remove(), 10000);
+}
+
+// লাইভ চেকারকে আপডেট করা (প্রতি মিনিটে চেক করবে)
+function checkAndNotify() {
+    routineData.forEach(dayInfo => {
+        dayInfo.classes.forEach(cls => {
+            if (checkLive(dayInfo.day, cls.time)) {
+                // যদি ক্লাস লাইভ হয় এবং আগে নোটিফিকেশন না দেখানো হয়ে থাকে
+                const notificationKey = `notified_${cls.code}_${new Date().toLocaleDateString()}`;
+                if (!localStorage.getItem(notificationKey)) {
+                    showNotification(cls.name, cls.zoom);
+                    localStorage.setItem(notificationKey, 'true'); // যাতে বারবার না দেখায়
+                }
+            }
+        });
+    });
+}
+
+// প্রতি ১ মিনিট অন্তর চেক করার জন্য setInterval
+setInterval(checkAndNotify, 60000);
+
+// ছবি প্রিভিউ করার জন্য
+let uploadedImageSrc = "";
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function(e) { uploadedImageSrc = e.target.result; };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function generateIDCard() {
+    const input = document.getElementById('idInput').value.trim();
+    let student = null;
+    studentData.forEach(sec => {
+        let found = sec.students.find(s => s.id === input);
+        if (found) student = found;
+    });
+
+    if (!student) { alert("Student ID not found!"); return; }
+    if (!uploadedImageSrc) { alert("Please upload your photo first!"); return; }
+
+    const cardHTML = `
+        <div id="captureCard" style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">          
+<div class="id-card-front">
+    <div class="card-header">
+        <img src="https://nub.ac.bd/student_loan/assets/images/nub_logo.png" style="width:160px;">
+    </div>
+    
+    <img src="${uploadedImageSrc}" class="id-photo" alt="Student Photo">
+    
+    <div style="text-align:center; margin-top: 10px;">
+        <h3 style="margin-bottom:5px; color:#222;">${student.name}</h3>
+        <p style="font-size: 13px; color: #555;"><strong>Blood Group:</strong> A+</p>
+    </div>
+    
+    <div class="card-info" style="margin-top:15px; padding: 0 25px;">
+        <p><strong>Student Id Number :</strong> ${student.id}</p>
+        <p><strong>Semester Enrolled :</strong> Spring 2026</p>
+        <p><strong>Valid Until :</strong> Fall 2027</p>
+        <p><strong>Program :</strong> MPH</p>
+    </div>
+    
+    <div class="card-footer" style="border-top: 1px solid #ddd;">Authorised Signature</div>
+</div>
+
+            <div class="id-card-back" style="display:flex; flex-direction:column; padding:30px; text-align:center; position:relative;">
+                <div style="margin-bottom:20px;">
+                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEim-_qGsvJIBURYj9ye5DjUbxraA-GoCsZ-8p9hrZz8zeIijbq38aVok1-GuucqJlz6D_DLylHm45oDGRDDP-dBTyhBvuf6HJuKRjMOEf7Ag8f_3bEPAhobdkUWADaejNMYcuYlCHhVnK3daDwgVAZjZiz_o0-WA6fRkl4hURoQWvDhBYuuTArsncB30-oh" style="width:100%; margin-bottom:10px;">
+                </div>
+                
+                <p style="font-size:14px; font-weight:bold; margin: 15px 0;">If Lost Please Return to the Address Below.</p>
+                
+                <div style="text-align:left; font-size:13px; line-height:1.5; margin-top:10px;">
+                    <p><strong><i class="fas fa-map-marker-alt" style="color:red; margin-right:5px;"></i> Permanent Campus:</strong> 111/2 Kawlar Jame Mosjid Road, Ashkona, (Near Haji Camp) Dakshinkhan, Dhaka-1230.</p>
+                    <p style="margin-top:15px;"><strong><i class="fas fa-phone-alt" style="margin-right:5px;"></i></strong> +8801755514650-57</p>
+                    <p>+8801755514661</p>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-download" style="margin-top:20px;" onclick="downloadCard()">Download ID Card</button>
+    `;
+    document.getElementById('cardResult').innerHTML = cardHTML;
+}
+
+function downloadCard() {
+    const card = document.getElementById('captureCard');
+    
+    html2canvas(card, {
+        scale: 2,
+        useCORS: true,      // বাইরের ডোমেইন থেকে ইমেজ লোড করার অনুমতি দেয়
+        allowTaint: false,  // এটি false রাখাই ভালো যাতে ক্যানভাস নষ্ট না হয়
+        logging: true       // কনসোলে কোনো এরর আছে কি না তা দেখার জন্য
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'Student_ID_Card.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+
     </script>
 </body>
 </html>
