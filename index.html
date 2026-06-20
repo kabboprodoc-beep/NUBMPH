@@ -8,7 +8,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAlkIXIx4KXthlCnp-prjsfy8KPwghw1QY",
+    authDomain: "nubmph-39e40.firebaseapp.com",
+    projectId: "nubmph-39e40",
+    storageBucket: "nubmph-39e40.firebasestorage.app",
+    messagingSenderId: "647153398829",
+    appId: "1:647153398829:web:0cb7c2833e2e68974134a4",
+    measurementId: "G-DPJ8ZJK69V"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
     <style>
         /* এটি ডিফল্ট ডার্ক মোড */
 :root {
@@ -172,69 +190,93 @@ body.light-mode {
         }
         
         /* Resource Folder Styles */
-.category-title {
-    font-size: 18px; font-weight: 700; color: var(--accent-color);
-    border-bottom: 2px solid var(--accent-bg); margin: 25px 0 15px; padding-bottom: 8px;
-    display: flex; align-items: center; gap: 8px;
-}
-.folder-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;
-}
-.folder-container { display: flex; flex-direction: column; }
-.folder-card {
-    background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 10px;
-    padding: 15px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px;
-}
-.folder-card:hover { background: var(--accent-bg); border-color: var(--accent-color); transform: translateY(-2px); }
-.folder-icon { font-size: 32px; color: var(--accent-color); transition: 0.3s; }
-.folder-info h4 { font-size: 15px; margin-bottom: 3px; color: var(--text-main); font-weight: 600; }
-.folder-info p { font-size: 12px; color: var(--text-muted); margin: 0; }
+		.category-title {
+			font-size: 18px; font-weight: 700; color: var(--accent-color);
+			border-bottom: 2px solid var(--accent-bg); margin: 25px 0 15px; padding-bottom: 8px;
+			display: flex; align-items: center; gap: 8px;
+		}
+		.folder-grid {
+			display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;
+		}
+		.folder-container { display: flex; flex-direction: column; }
+		.folder-card {
+			background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 10px;
+			padding: 15px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px;
+		}
+		.folder-card:hover { background: var(--accent-bg); border-color: var(--accent-color); transform: translateY(-2px); }
+		.folder-icon { font-size: 32px; color: var(--accent-color); transition: 0.3s; }
+		.folder-info h4 { font-size: 15px; margin-bottom: 3px; color: var(--text-main); font-weight: 600; }
+		.folder-info p { font-size: 12px; color: var(--text-muted); margin: 0; }
 
-.file-list { display: none; margin-top: 10px; padding-left: 10px; border-left: 2px dashed var(--glass-border); animation: fadeIn 0.3s ease; }
-.file-list.active { display: block; }
-.file-item {
-    background: rgba(0,0,0,0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px;
-    display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--glass-border);
-}
+		.file-list { display: none; margin-top: 10px; padding-left: 10px; border-left: 2px dashed var(--glass-border); animation: fadeIn 0.3s ease; }
+		.file-list.active { display: block; }
+		.file-item {
+			background: rgba(0,0,0,0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px;
+			display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--glass-border);
+		}
 
-/* টিচারের নাম এবং নম্বরের নতুন স্টাইল */
-.teacher-info-box {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-    margin-top: 8px;
-}
-/* টিচারের নামের জন্য লাল ডিজাইন */
-.teacher-name-badge {
-    background: #ff4757; /* গাঢ় লাল ব্যাকগ্রাউন্ড */
-    color: #ffffff;      /* সাদা টেক্সট */
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border: 1px solid #ff6b81;
-}
+		/* টিচারের নাম এবং নম্বরের নতুন স্টাইল */
+		.teacher-info-box {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 10px;
+			margin-top: 8px;
+		}
+		/* টিচারের নামের জন্য লাল ডিজাইন */
+		.teacher-name-badge {
+			background: #ff4757; /* গাঢ় লাল ব্যাকগ্রাউন্ড */
+			color: #ffffff;      /* সাদা টেক্সট */
+			padding: 6px 12px;
+			border-radius: 6px;
+			font-size: 13px;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			border: 1px solid #ff6b81;
+		}
 
-/* ফোন নম্বরের জন্য নীল ডিজাইন (যেমনটি আগে ছিল) */
-.phone-badge {
-    background: #0056b3; /* আপনার পছন্দের গাঢ় নীল */
-    color: #ffffff;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: 0.3s;
-}
-.phone-badge:hover {
-    background: #004494;
-}
+		/* ফোন নম্বরের জন্য নীল ডিজাইন (যেমনটি আগে ছিল) */
+		.phone-badge {
+			background: #0056b3; /* আপনার পছন্দের গাঢ় নীল */
+			color: #ffffff;
+			padding: 6px 12px;
+			border-radius: 6px;
+			font-size: 13px;
+			text-decoration: none;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			transition: 0.3s;
+		}
+		.phone-badge:hover {
+			background: #004494;
+		}
+
+		/* Contact Section Styles */
+		.contact-container {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 15px;
+			margin-top: 10px;
+		}
+
+		.contact-card {
+			background: var(--glass-bg);
+			backdrop-filter: blur(10px);
+			border: 1px solid var(--glass-border);
+			border-radius: 12px;
+			padding: 15px;
+		}
+
+		.contact-row {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			margin-bottom: 10px;
+		}
+		
 
     </style>
 </head>
@@ -250,26 +292,33 @@ body.light-mode {
             <p>Summer Class Routine & Combined Section Information</p>
         </div>
 
-        <div class="notice-board">
-            <span class="notice-badge">Notice</span>
-            <marquee behavior="scroll" direction="left" id="noticeText">
-                Dear Students,
-This is to inform you that our Coordinator and Head of the Department (In-Charge) of Public Health, Dr. Md. Rifat Uddin, will be out of the country from 21–30 June 2026.
-During this period, for any academic communication, you are requested to contact Dr. Tanjamul Refat if necessary. Mobile Number: 01622789563
-Thanks
-            </marquee>
-        </div>
+<div class="notice-board">
+    <span class="notice-badge">Notice</span>
+    
+    <marquee behavior="scroll" direction="left" id="noticeText">
+        Loading...
+    </marquee>
+</div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab(event, 'routine')"><i class="fas fa-calendar-alt"></i> Routine</button>
-            <button class="tab-btn" onclick="switchTab(event, 'resources')"><i class="fas fa-folder-open"></i> Resources</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tracker')"><i class="fas fa-tasks"></i> Tracker</button>
-            <button class="tab-btn" onclick="switchTab(event, 'students')"><i class="fas fa-users"></i> Students</button>
-        </div>
+    <button class="tab-btn active" onclick="switchTab(event, 'routine')"><i class="fas fa-calendar-alt"></i> Routine</button>
+    <button class="tab-btn" onclick="switchTab(event, 'resources')"><i class="fas fa-folder-open"></i> Resources</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tracker')"><i class="fas fa-tasks"></i> Tracker</button>
+    <button class="tab-btn" onclick="switchTab(event, 'students')"><i class="fas fa-users"></i> Students</button>
+    <button class="tab-btn" onclick="switchTab(event, 'contact')"><i class="fas fa-headset"></i> Contact</button>
+</div>
 
         <div id="routine" class="section active"></div>
 
         <div id="resources" class="section">
+		<div class="toolbar">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="resourceSearch" class="search-input" 
+               placeholder="Search resources by course code or title..." 
+               onkeyup="filterResources()">
+    </div>
+</div>
             <div class="day-title"><i class="fas fa-book-medical"></i> Study Materials & Vault</div>
             <div id="resourceList"></div>
         </div>
@@ -306,9 +355,53 @@ Thanks
                 <button class="btn btn-api" onclick="sendWebhookReminder()"><i class="fas fa-paper-plane"></i> Send WhatsApp Reminder</button>
             </div>
         </div>
-
     </div>
 
+<div id="contact" class="section">
+    <div class="day-title"><i class="fas fa-headset"></i> Contact Management</div>
+    
+    <div class="contact-container">
+        <!-- Class Monitors Card -->
+        <div class="contact-card">
+            <h4 style="margin-bottom: 12px; color: var(--text-main); font-size: 14px;">
+                <i class="fas fa-user-friends"></i> Class Monitors
+            </h4>
+            <div class="contact-row">
+                <!-- ক্লাস নেম ব্যাজ (লাল) -->
+                <div class="teacher-name-badge">
+                    <i class="fas fa-user"></i> Sumon
+                </div>
+                <!-- ফোন নম্বর ব্যাজ (নীল) -->
+                <a href="https://wa.me/8801724651212" class="phone-badge">
+                    <i class="fas fa-phone-alt"></i> 01724651212
+                </a>
+            </div>
+            <div class="contact-row">
+                <div class="teacher-name-badge">
+                    <i class="fas fa-user"></i> Maria
+                </div>
+                <a href="https://wa.me/8801876654534" class="phone-badge">
+                    <i class="fas fa-phone-alt"></i> 01876654534
+                </a>
+            </div>
+        </div>
+
+        <!-- Coordinator Card -->
+        <div class="contact-card">
+            <h4 style="margin-bottom: 12px; color: var(--text-main); font-size: 14px;">
+                <i class="fas fa-user-tie"></i> Coordinator
+            </h4>
+            <div class="contact-row">
+                <div class="teacher-name-badge" style="background: #ff4757;">
+                    <i class="fas fa-chalkboard-teacher"></i> Dr. Rifat
+                </div>
+                <a href="tel:01723456789" class="phone-badge">
+                    <i class="fas fa-phone-alt"></i> 01723456789
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
     <script>
         // ==========================
         // DATA STRUCTURES
@@ -317,7 +410,7 @@ Thanks
         // Original Routine Data
        const routineData = [
     {
-        day: "Friday",
+        day: "Friday (Health Managemet Group A-D)",
         classes: [
             { 
                 time: "9.00 - 10.30 am", 
@@ -351,6 +444,41 @@ Thanks
             }
         ]
     },
+	    {
+    day: "Friday (Hospital Management - Group A)",
+    classes: [
+        { 
+            time: "9.30 - 10.30 am", 
+            name: "Principles of Hospital Management", 
+            code: "5215 PHM", 
+            section: "Group-A", 
+            faculty: "Dr. Tanjamul Refat Emon", 
+            phone: "01XXXXXXXXX", // আপনার কাছে থাকা নম্বরটি এখানে বসান
+            zoom: "#", 
+            group: "#" 
+        },
+        { 
+            time: "10.30 - 12.00 pm", 
+            name: "Human Resource Development & Management", 
+            code: "6321 HRDM", 
+            section: "Group-A", 
+            faculty: "Dr. Fahmida Akhtar", 
+            phone: "01XXXXXXXXX", 
+            zoom: "#", 
+            group: "#" 
+        },
+        { 
+            time: "3.30 - 5.00 pm", 
+            name: "Hospital Resource Planning & Management", 
+            code: "6320 HRPM", 
+            section: "Group-A", 
+            faculty: "Dr. Tanjamul Refat Emon", 
+            phone: "01XXXXXXXXX", 
+            zoom: "#", 
+            group: "#" 
+        }
+    ]
+},
     {
         day: "Saturday",
         classes: [
@@ -798,6 +926,76 @@ window.onload = () => {
         setInterval(renderRoutine, 60000);
 
         /* Note: Add Firebase Initialization Code here in production */
+		
+		function filterResources() {
+    // সার্চ ইনপুট ভ্যালু
+    let input = document.getElementById('resourceSearch').value.toLowerCase();
+    
+    // সব ফাইল আইটেম সিলেক্ট করুন
+    let fileItems = document.querySelectorAll('.file-item');
+    
+    fileItems.forEach(item => {
+        let text = item.innerText.toLowerCase();
+        
+        if (text.includes(input)) {
+            item.style.display = 'flex'; // ম্যাচ করলে দেখাবে
+            
+            // যদি ইনপুট থাকে এবং ম্যাচ করে, তবে তার parent ফোল্ডারটি ওপেন করে দিন
+            let parentList = item.closest('.file-list');
+            if (parentList) {
+                parentList.classList.add('active'); // ফোল্ডার ওপেন হবে
+                
+                // আইকন পরিবর্তন (ফোল্ডার ওপেন)
+                let iconId = parentList.id.replace('folder-', 'icon-');
+                let icon = document.getElementById(iconId);
+                if (icon) icon.className = "fas fa-folder-open";
+            }
+        } else {
+            item.style.display = 'none'; // ম্যাচ না করলে লুকিয়ে ফেলবে
+        }
+    });
+
+    // যদি সার্চ বক্স খালি থাকে, তাহলে সব ফোল্ডার আগের অবস্থায় ফিরিয়ে নেওয়া (অপশনাল)
+    if (input === "") {
+        document.querySelectorAll('.file-list').forEach(list => list.classList.remove('active'));
+        document.querySelectorAll('.folder-icon i').forEach(icon => icon.className = "fas fa-folder");
+    }
+}
+
+function updateNotice() {
+    const newNotice = document.querySelector('.admin-input').value;
+    
+    if(newNotice) {
+        db.collection("notices").doc("current_notice").set({
+            text: newNotice
+        })
+        .then(() => {
+            alert("Notice updated successfully!");
+        })
+        .catch((error) => {
+            console.error("Error updating notice: ", error);
+        });
+    }
+}
+
+// রিয়েল-টাইমে নোটিশ আপডেট করার ফাংশন
+function fetchDynamicNotice() {
+    const noticeElement = document.getElementById('noticeText');
+    
+    // Firestore-এর 'notices' কালেকশন থেকে 'current_notice' ডকুমেন্টটি রিড করুন
+    db.collection("notices").doc("current_notice")
+    .onSnapshot((doc) => {
+        if (doc.exists) {
+            noticeElement.innerText = doc.data().text;
+        } else {
+            console.log("No such document!");
+        }
+    });
+}
+
+// পেজ লোড হওয়ার সাথে সাথে এটি চালু করুন
+fetchDynamicNotice();
+
     </script>
 </body>
 </html>
