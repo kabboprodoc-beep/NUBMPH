@@ -961,21 +961,15 @@ window.onload = () => {
     }
 }
 
-// Firestore থেকে ডাটা আনার জন্য এই ফাংশনটি ব্যবহার করুন
+// আপনার বর্তমান fetchDynamicNotice ফাংশনটি সরিয়ে এটি ব্যবহার করে দেখুন
 function fetchDynamicNotice() {
-    const noticeElement = document.getElementById('noticeText');
-    
-    // ডাটাবেস চেক করা
-    db.collection("notices").doc("current_notice")
-    .onSnapshot((doc) => {
-        if (doc && doc.exists) {
-            noticeElement.innerText = doc.data().text;
-            console.log("Notice Loaded:", doc.data().text); // কনসোলে চেক করার জন্য
+    db.collection("notices").doc("current_notice").onSnapshot(function(doc) {
+        var noticeElement = document.getElementById("noticeText");
+        if (doc.exists) {
+            noticeElement.innerHTML = doc.data().text;
         } else {
-            noticeElement.innerText = "No notice available.";
+            noticeElement.innerHTML = "No notice found.";
         }
-    }, (error) => {
-        console.error("Firestore Error: ", error); // কোনো এরর হলে এখানে দেখাবে
     });
 }
 
