@@ -7,8 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
 <script>
@@ -677,9 +675,9 @@ function toggleTheme() {
 
 // পেজ লোড হওয়ার সময় আগের থিম চেক করা
 window.onload = () => {
+    // ১. থিম লজিক
     const savedTheme = localStorage.getItem('theme');
     const icon = document.getElementById('themeIcon');
-    
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
         icon.className = 'fas fa-moon';
@@ -688,11 +686,12 @@ window.onload = () => {
         icon.className = 'fas fa-sun';
     }
     
-    // আগের রেন্ডারিং ফাংশনগুলো...
+    // ২. রেন্ডারিং ও ফায়ারবেস কল
     renderRoutine();
     renderResources();
     renderTracker();
     renderStudents();
+    fetchDynamicNotice(); // নিশ্চিত করুন এটি এখানে আছে
 };
 
         // Live Class Checker Logic
@@ -979,16 +978,6 @@ function fetchDynamicNotice() {
         console.error("Firestore Error: ", error); // কোনো এরর হলে এখানে দেখাবে
     });
 }
-
-// পেজ লোড হওয়ার সাথে সাথে কল করা
-window.onload = () => {
-    // আগের থিম লজিক...
-    fetchDynamicNotice(); // এই লাইনটি আছে কি না দেখুন    
-    renderRoutine();
-    renderResources();
-    renderTracker();
-    renderStudents();
-};
 
     </script>
 </body>
