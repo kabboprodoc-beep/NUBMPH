@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MPH Summer Class Routine & Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>	
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
@@ -42,7 +43,7 @@ body.light-mode {
 
         body { background: var(--bg-gradient); color: var(--text-main); min-height: 100vh; padding: 20px; transition: background 0.5s ease, color 0.5s ease; }
 
-        .container { max-width: 900px; margin: 0 auto; position: relative; }
+        .container { max-width: 900px; width: 95%; margin: 0 auto; position: relative; }
 
         /* Floating Buttons */
         .theme-toggle-btn {
@@ -158,19 +159,43 @@ body.light-mode {
         tr:hover { background: var(--table-hover); }
         .badge { background: var(--accent-bg); color: var(--accent-color); padding: 3px 8px; border-radius: 4px; font-size: 11px; margin-right: 5px; display: inline-block; margin-top: 5px; font-weight: 600; }
 
-        /* Admin Panel Styles */
-        .admin-panel { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; border: 1px dashed var(--warning-color); margin-bottom: 20px;}
-        .admin-input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); }
+			/* ইনপুট ফিল্ডে যেন অটো জুম না হয় */
+			input, textarea, select {
+				font-size: 16px !important; 
+			}
 
-        /* Mobile Adjustments */
-        @media (max-width: 600px) {
-            .card { flex-direction: column; align-items: flex-start; }
-            .action-links { width: 100%; justify-content: flex-start; }
-            .btn { flex: 1; justify-content: center; }
-            th, td { padding: 10px; }
-            .theme-toggle-btn { top: 15px; right: 15px; }
-            .admin-toggle-btn { top: 15px; left: 15px; }
-        }
+			.admin-panel { 
+				background: rgba(0,0,0,0.2); 
+				padding: 20px; 
+				border-radius: 12px; 
+				border: 1px dashed var(--warning-color); 
+				margin-bottom: 20px;
+			}
+
+			.admin-input { 
+				width: 100%; 
+				padding: 12px; /* প্যাডিং একটু বাড়িয়েছি ইউজার ফ্রেন্ডলি করার জন্য */
+				margin-bottom: 10px; 
+				border-radius: 6px; 
+				border: 1px solid var(--glass-border); 
+				background: var(--glass-bg); 
+				color: var(--text-main); 
+				font-size: 16px; /* অটো জুম ঠেকাবে */
+				outline: none;
+			}
+
+			/* মোবাইল অ্যাডজাস্টমেন্ট */
+			@media (max-width: 600px) {
+				body {
+					touch-action: manipulation; /* ডাবল ট্যাপ জুম বন্ধ করবে */
+				}
+				.card { flex-direction: column; align-items: flex-start; }
+				.action-links { width: 100%; justify-content: flex-start; }
+				.btn { flex: 1; justify-content: center; width: 100%; }
+				th, td { padding: 10px 5px; font-size: 12px; }
+				.theme-toggle-btn { top: 15px; right: 15px; }
+				.admin-toggle-btn { top: 15px; left: 15px; }
+			}
         
         /* Resource Folder Styles */
 		.category-title {
@@ -197,8 +222,6 @@ body.light-mode {
 			background: rgba(0,0,0,0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px;
 			display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--glass-border);
 		}
-
-		/* টিচারের নাম এবং নম্বরের নতুন স্টাইল */
 		.teacher-info-box {
 			display: flex;
 			flex-wrap: wrap;
@@ -206,10 +229,9 @@ body.light-mode {
 			gap: 10px;
 			margin-top: 8px;
 		}
-		/* টিচারের নামের জন্য লাল ডিজাইন */
 		.teacher-name-badge {
-			background: #ff4757; /* গাঢ় লাল ব্যাকগ্রাউন্ড */
-			color: #ffffff;      /* সাদা টেক্সট */
+			background: #ff4757; 
+			color: #ffffff;      
 			padding: 6px 12px;
 			border-radius: 6px;
 			font-size: 13px;
@@ -219,10 +241,8 @@ body.light-mode {
 			gap: 6px;
 			border: 1px solid #ff6b81;
 		}
-
-		/* ফোন নম্বরের জন্য নীল ডিজাইন (যেমনটি আগে ছিল) */
 		.phone-badge {
-			background: #0056b3; /* আপনার পছন্দের গাঢ় নীল */
+			background: #0056b3;
 			color: #ffffff;
 			padding: 6px 12px;
 			border-radius: 6px;
@@ -300,10 +320,8 @@ body.light-mode {
     color: #333; 
     font-family: 'Poppins', sans-serif;
     box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
-    border-radius: 15px; /* কার্ডের কোনা একটু রাউন্ড করা হয়েছে */
+    border-radius: 15px;
 }
-
-/* স্মার্ট ছবি স্টাইল */
 .id-photo { 
     width: 130px; 
     height: 160px; 
@@ -314,8 +332,6 @@ body.light-mode {
     border: none; 
     box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
 }
-
-/* নীল লাইন রিমুভ করা হেডার */
 .card-header { 
     text-align: center; 
     margin-bottom: 20px; 
@@ -329,12 +345,10 @@ body.light-mode {
 
 .card-info { 
     font-size: 13px; 
-    line-height: 2; /* লাইনগুলোর মাঝে দূরত্ব বাড়ানো হয়েছে */
+    line-height: 2; 
     margin-top: 15px;
     padding: 0 10px;
 }
-
-/* সিগনেচার লাইন স্টাইল */
 .card-footer { 
     position: absolute; 
     bottom: 30px; 
@@ -375,7 +389,9 @@ Thanks
     <button class="tab-btn" onclick="switchTab(event, 'resources')"><i class="fas fa-folder-open"></i> Resources</button>
     <button class="tab-btn" onclick="switchTab(event, 'tracker')"><i class="fas fa-tasks"></i> Tracker</button>
     <button class="tab-btn" onclick="switchTab(event, 'students')"><i class="fas fa-users"></i> Students</button>
-    <button class="tab-btn" onclick="switchTab(event, 'contact')"><i class="fas fa-headset"></i> Contact</button>
+	<button class="tab-btn" onclick="switchTab(event, 'attendance')"><i class="fas fa-check-double"></i> Attendance</button>
+    <button class="tab-btn" onclick="switchTab(event, 'analytics')"><i class="fas fa-chart-line"></i> Analytics</button>
+	<button class="tab-btn" onclick="switchTab(event, 'contact')"><i class="fas fa-headset"></i> Contact</button>
 	<button class="tab-btn" onclick="switchTab(event, 'idCardGenerator')"><i class="fas fa-id-card"></i> ID Card</button>
 </div>
 
@@ -427,6 +443,40 @@ Thanks
             </div>
         </div>
     </div>
+
+<div id="attendance" class="section">
+    <div class="day-title"><i class="fas fa-clipboard-check"></i> Daily Attendance Sheet</div>
+    
+    <div class="card" style="margin-bottom: 20px;">
+        <input type="date" id="attendanceDate" class="admin-input" style="width: auto;">
+        <button class="btn btn-api" onclick="loadAttendanceDate()">Load Date</button>
+    </div>
+    
+    <div class="table-container" id="attendanceContainer">
+        </div>
+
+    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-download" onclick="exportAttendancePDF()">
+            <i class="fas fa-file-pdf"></i> Download PDF
+        </button>
+        <button class="btn btn-wa" onclick="shareAttendance('whatsapp')">
+            <i class="fab fa-whatsapp"></i> Send via WA
+        </button>
+        <button class="btn btn-api" onclick="shareAttendance('email')">
+            <i class="fas fa-envelope"></i> Send via Email
+        </button>
+    </div>
+</div>
+
+<div id="analytics" class="section">
+    <div class="day-title"><i class="fas fa-chart-pie"></i> Monthly Attendance Analytics</div>
+    <div class="card" style="display: block;">
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+        <div id="attendanceSummary" style="margin-top:20px; font-size: 14px; color: var(--text-muted); text-align: center;"></div>
+    </div>
+</div>
 
 <div id="contact" class="section">
     <div class="day-title"><i class="fas fa-headset"></i> Contact Management</div>
@@ -731,17 +781,20 @@ function toggleFolder(folderId, iconId) {
         // CORE FUNCTIONS
         // ==========================
 
-        // Tab Switcher Logic
         function switchTab(e, tabId) {
-            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            
-            // Only highlight the button if it's one of the main nav tabs
-            if(e && e.currentTarget && e.currentTarget.classList.contains('tab-btn')) {
-                e.currentTarget.classList.add('active');
-            }
-        }
+		document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+		document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+		document.getElementById(tabId).classList.add('active');
+		
+		// নতুন এই লাইনটি যোগ করুন:
+		if (tabId === 'analytics') {
+			renderAnalytics(); 
+		}
+		
+		if(e && e.currentTarget && e.currentTarget.classList.contains('tab-btn')) {
+			e.currentTarget.classList.add('active');
+		}
+	}
 
         // Theme Toggle Logic
         // থিম টগল এবং লোকাল স্টোরেজ লজিক
@@ -779,21 +832,24 @@ window.addEventListener('load', () => {
     renderStudents();
 });
 
-        // Live Class Checker Logic
-        function checkLive(dayName, timeStr) {
+        // --- ফিক্সড: লাইভ ক্লাসের জন্য আপডেট করা লজিক ---
+function checkLive(dayName, timeStr) {
     const now = new Date();
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    if (days[now.getDay()] !== dayName) return false;
+    const currentDay = days[now.getDay()];
+    
+    // Day check: স্ট্রিং-এ Friday বা Saturday আছে কিনা তা চেক করছি
+    if (!dayName.includes(currentDay)) return false;
 
     try {
-        // timeStr: "9.00 - 10.30 am" ফরম্যাট থেকে সময় বের করা
         const isPM = timeStr.toLowerCase().includes('pm');
         const [start, endPart] = timeStr.split(' - ');
         const end = endPart.replace(/am|pm/gi, '').trim();
 
+        // ২৪ ঘণ্টার ফরমেটে সময় কনভার্ট করা
         const startH = parseInt(start.split('.')[0]) + (isPM && start.split('.')[0] !== '12' ? 12 : 0);
         const startM = parseInt(start.split('.')[1]);
-        const endH = parseInt(end.split('.')[0]) + (isPM ? 12 : 0);
+        const endH = parseInt(end.split('.')[0]) + (isPM && end.split('.')[0] !== '12' ? 12 : 0);
         const endM = parseInt(end.split('.')[1]);
 
         const currentTime = now.getHours() * 60 + now.getMinutes();
@@ -803,7 +859,6 @@ window.addEventListener('load', () => {
         return (currentTime >= startTime && currentTime <= endTime);
     } catch(e) { return false; }
 }
-
 
         // ==========================
         // RENDERING FUNCTIONS
@@ -989,7 +1044,6 @@ window.addEventListener('load', () => {
             alert("Webhook Triggered!\nIn a live environment, this will send an automated WhatsApp/Email message to the batch group with the class details.");
         }
 
-
         // ==========================
         // INITIALIZATION
         // ==========================
@@ -1000,8 +1054,6 @@ window.addEventListener('load', () => {
         
         // Auto Update Live Indicator every 1 minute
         setInterval(renderRoutine, 60000);
-
-        /* Note: Add Firebase Initialization Code here in production */
 		
 	function filterResources() {
     let input = document.getElementById('resourceSearch').value.toLowerCase();
@@ -1130,22 +1182,175 @@ function generateIDCard() {
     document.getElementById('cardResult').innerHTML = cardHTML;
 }
 
+// --- ফিক্সড: আইডি কার্ড ডাউনলোডের জন্য মেমোরি হ্যান্ডলিং ---
 function downloadCard() {
     const card = document.getElementById('captureCard');
     
+    // কার্ডটি ইমেজে কনভার্ট করার আগে ক্যানভাস স্কেল ঠিক করা
     html2canvas(card, {
-        scale: 2,
-        useCORS: true,      // বাইরের ডোমেইন থেকে ইমেজ লোড করার অনুমতি দেয়
-        allowTaint: false,  // এটি false রাখাই ভালো যাতে ক্যানভাস নষ্ট না হয়
-        logging: true       // কনসোলে কোনো এরর আছে কি না তা দেখার জন্য
+        scale: 3, // হাই রেজোলিউশন
+        useCORS: true,
+        logging: false,
+        backgroundColor: null
     }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'Student_ID_Card.png';
+        link.download = 'My_MPH_ID_Card.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
+    }).catch(err => {
+        alert("ইমেজ জেনারেট করতে সমস্যা হচ্ছে। আপনার ছবির সাইজ চেক করুন।");
+        console.error(err);
     });
 }
 
+// অ্যাটেনডেন্স ডাটা লোড বা সেভ করার লজিক
+let attendanceData = JSON.parse(localStorage.getItem('mphAttendance')) || {};
+
+function renderAttendanceTable() {
+    const container = document.getElementById('attendanceContainer');
+    const selectedDate = document.getElementById('attendanceDate').value || new Date().toISOString().split('T')[0];
+    
+    let html = `<table id="attendanceTable"><thead><tr><th>ID</th><th>Name</th><th>Status</th></tr></thead><tbody>`;
+    
+    // সবগুলো স্টুডেন্টকে লুপ করা
+    studentData.forEach(sec => {
+        sec.students.forEach(student => {
+            let status = attendanceData[selectedDate]?.[student.id] || "Absent";
+            html += `<tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>
+                    <select onchange="updateAttendance('${student.id}', this.value)">
+                        <option value="Present" ${status === 'Present' ? 'selected' : ''}>Present</option>
+                        <option value="Absent" ${status === 'Absent' ? 'selected' : ''}>Absent</option>
+                    </select>
+                </td>
+            </tr>`;
+        });
+    });
+    
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+}
+
+function updateAttendance(studentId, status) {
+    const date = document.getElementById('attendanceDate').value || new Date().toISOString().split('T')[0];
+    if (!attendanceData[date]) attendanceData[date] = {};
+    attendanceData[date][studentId] = status;
+    localStorage.setItem('mphAttendance', JSON.stringify(attendanceData));
+}
+
+function loadAttendanceDate() {
+    renderAttendanceTable();
+}
+
+// পিডিএফ এক্সপোর্ট এর জন্য (নিচে দেওয়া সিডিএন লাইব্রেরি লাগবে)
+function exportAttendancePDF() {
+    alert("পিডিএফ এক্সপোর্টের জন্য jsPDF লাইব্রেরি হেডারে যোগ করতে হবে। আপনি কি সেটি যুক্ত করে পরবর্তী ধাপে যেতে চান?");
+}
+
+// পেজ লোড হওয়ার সময় ডিফল্ট তারিখ সেট করা
+document.getElementById('attendanceDate').value = new Date().toISOString().split('T')[0];
+
+// ১. প্রফেশনাল পিডিএফ জেনারেটর
+function exportAttendancePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const date = document.getElementById('attendanceDate').value;
+
+    doc.setFontSize(18);
+    doc.text(`Attendance Report - ${date}`, 14, 15);
+    
+    // টেবিল তৈরি
+    doc.autoTable({
+        startY: 25,
+        head: [['ID', 'Name', 'Status']],
+        body: getAttendanceTableData(),
+        theme: 'grid',
+    });
+
+    doc.save(`Attendance_${date}.pdf`);
+}
+
+function getAttendanceTableData() {
+    const date = document.getElementById('attendanceDate').value;
+    let data = [];
+    studentData.forEach(sec => {
+        sec.students.forEach(student => {
+            let status = attendanceData[date]?.[student.id] || "Absent";
+            data.push([student.id, student.name, status]);
+        });
+    });
+    return data;
+}
+
+// ২. হোয়াটসঅ্যাপ বা ইমেইলে সরাসরি ডাটা পাঠানোর লজিক
+function shareAttendance(method) {
+    const date = document.getElementById('attendanceDate').value;
+    let message = `Attendance Report for ${date}:\n\n`;
+    
+    studentData.forEach(sec => {
+        sec.students.forEach(student => {
+            let status = attendanceData[date]?.[student.id] || "Absent";
+            message += `${student.name} (${student.id}): ${status}\n`;
+        });
+    });
+
+    if (method === 'whatsapp') {
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    } else {
+        window.location.href = `mailto:?subject=Attendance Report ${date}&body=${encodeURIComponent(message)}`;
+    }
+}
+
+function renderAnalytics() {
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    
+    // ১. মোট কতজন স্টুডেন্ট আছে বের করা
+    let totalStudents = 0;
+    studentData.forEach(sec => totalStudents += sec.students.length);
+
+    // ২. এই মাসে কয়দিন ক্লাস হয়েছে (কতগুলো ডেট এন্ট্রি আছে)
+    let datesInMonth = Object.keys(attendanceData).filter(date => {
+        const d = new Date(date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    });
+
+    let totalPossibleAttendance = datesInMonth.length * totalStudents;
+    let totalPresent = 0;
+
+    // ৩. কতজন প্রেজেন্ট হয়েছে
+    datesInMonth.forEach(date => {
+        Object.values(attendanceData[date]).forEach(status => {
+            if (status === 'Present') totalPresent++;
+        });
+    });
+
+    // ৪. যারা ডাটাতে নেই বা 'Absent' তাদের অ্যাবসেন্স হিসেবে গণ্য করা
+    let totalAbsent = totalPossibleAttendance - totalPresent;
+
+    // Chart.js গ্রাফ আপডেট
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                data: [totalPresent, totalAbsent],
+                backgroundColor: ['#10ac84', '#ff4757']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    document.getElementById('attendanceSummary').innerHTML = `
+        <strong>Monthly Stats:</strong><br>
+        Class Days: ${datesInMonth.length} | Students: ${totalStudents}<br>
+        <strong>Present: ${totalPresent} | Absent: ${totalAbsent}</strong>
+    `;
+}
     </script>
 </body>
 </html>
